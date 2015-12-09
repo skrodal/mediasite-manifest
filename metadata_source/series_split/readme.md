@@ -1,0 +1,1 @@
+Downloaded metadata files for all individual series will be stored here.
