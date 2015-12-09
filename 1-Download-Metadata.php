@@ -2,7 +2,7 @@
 
 ######
 #
-# ~~~ NTNU Open Video to Mediasite Import - SCRIPT #1 - Metadata download ~~~
+# ~~~ Open Video to Mediasite Import - SCRIPT #1 - Metadata download ~~~
 # 
 # Downloads all Open Video metadata (series and presentations) to disk. 
 # 

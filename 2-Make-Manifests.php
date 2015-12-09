@@ -2,7 +2,7 @@
 
 ######
 #
-# ~~~ NTNU Open Video to Mediasite Import - SCRIPT #2 - Make manifests ~~~
+# ~~~ Open Video to Mediasite Import - SCRIPT #2 - Make manifests ~~~
 # 
 # Scans all Open Video metadata files (series and presentations) and:  
 # 
