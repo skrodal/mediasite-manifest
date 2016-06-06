@@ -1,6 +1,6 @@
-manifests/*.xml
+manifests/*/*.xml
 metadata_source/series_split/*.json
 metadata_source/series_main/*.json
 error_logs/*.json
 etc/config.js
-.dev
+.devs

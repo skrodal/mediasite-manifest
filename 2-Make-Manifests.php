@@ -36,12 +36,13 @@ $config = json_decode( file_get_contents('etc/config.js'), false );
 	$seriesWithEmptyMetadata = [];
 	$presentationsWithVideoMissing = [];
 
+
 # Loop all series found in the series metadata file, and for each serie
 # 
 # - read the corresponding metatdata file from local disk
 # - catch any serie/presentation with missing data
 # - create manifests for all presentations with sufficient meta
-foreach ($seriesObject as $key => $serieObj) {
+foreach ($seriesObject as $seriesKey => $serieObj) {
 	// Fetch local file for this serie
 	$serieObject = json_decode( file_get_contents($config->presentationsMetaPath . $serieObj->guid . '.json') );
 	// A few series points to a missing metadata document, record and skip these.
@@ -50,14 +51,34 @@ foreach ($seriesObject as $key => $serieObj) {
 		continue;
 	} 
 
+// IS SERIE TAGGED OFFLINE?
+//if($serieObj->online == 0){
+//	echo "<li>" . $serieObj->title;
+//}
+
+	// Create one folder per serie (XML-files will be stored here)
+	if($config->writeManifestsToFile) {
+		$serieFolderPath = $config->manifestsRootPath . $serieObj->guid . '/';
+		mkdir($serieFolderPath);
+	}
+
+	// Make array of SERIE keyword string (we add these as Tags to every presentation in the serie)
+	$serieKeywords = explode(',', $serieObj->keywords);
+
 	// Loop content (x number of presentations) and build each manifest file
-	foreach ($serieObject as $key => $presentationObj) {
+	foreach ($serieObject as $serieKey => $presentationObj) {
+
 		// Catch presentations that are missing the [podcastvideo] array with direct url to a media file
 		if(!isset($presentationObj->podcastvideo[0])) {
 			$presentationsWithVideoMissing['missing_type_'.strtolower($presentationObj->type)][] = $presentationObj;
 		} else {
 			// By now we have dodged series with empty metadata and presentations with no direct url to video. 
 			// Time to build those manifests!
+
+// IS PRESENTATION TAGGED OFFLINE?
+//if($presentationObj->online == 0){
+//	echo "<li>" . $serieObj->title;
+//}
 
 			# Build Manifest
 			$xml = new SimpleXMLElement('<IntegrationManifest/>');
@@ -72,9 +93,11 @@ foreach ($seriesObject as $key => $serieObj) {
 					$presentation->Title = $presentationObj->title;
 					# Tags (0 - many)
 					$tags = $presentation->addChild('Tags');
-					// Make array of keyword string
+					// Make array of PRESENTATION keyword string
 					$keywords = explode(',', $presentationObj->keywords);
-					// Loop and add Tag nodes
+					// MERGE serie keywords with presentation keywords. Trim/make lower case and remove duplicates.
+					$keywords = array_unique(array_map('trim', array_map('strtolower', array_merge($keywords, $serieKeywords))));
+					// Loop presentation keywords and add as Tag nodes
 					foreach ($keywords as $index => $keyword) {
 						$tags->addChild('Tag')->addAttribute('Value', trim($keyword));
 					}
@@ -128,20 +151,25 @@ foreach ($seriesObject as $key => $serieObj) {
 
 						// Turn actual writing to file on/off in config
 						if($config->writeManifestsToFile) {
-							echo '<li>Writing ' . $config->manifestsRootPath . $presentationObj->guid . 'Manifest.xml' .' to file.</li>';
-							file_put_contents($config->manifestsRootPath . $presentationObj->guid . 'Manifest.xml', $xml->asXML());
+							echo '<li>Writing ' . $serieFolderPath . $presentationObj->guid . 'Manifest.xml' .' to file.</li>';
+							file_put_contents($serieFolderPath . $presentationObj->guid . 'Manifest.xml', $xml->asXML());
 						} else {
-							// Output a single XML sample and exit
+/*
+							// Output a single XML sample and exit in first iteration of loop
 							Header('Content-type: text/xml');
 							$xml->addAttribute('COMMENT', 'Sample output below: Manifest output to file has been diabled. Edit writeManifestsToFile in config.js to turn on.');
+							//
 							print($xml->asXML());
 							exit();
+*/
 						}
 		} // end if/else
 		
 	} // end loop in serie
 
 } // end series loop
+
+
 
 // Log troublesome series/presentations to file?
 if($config->logMissingData) {
