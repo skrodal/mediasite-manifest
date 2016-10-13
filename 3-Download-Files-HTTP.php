@@ -58,14 +58,32 @@ foreach ($fileSeriesList as $fileName) {
 		if($numFilesToDownload !== false && $filesDownloaded >= $numFilesToDownload){
 			exit("EXIT: Done downloading " . $filesDownloaded . " presentation files" . PHP_EOL);
 		}
-		echo "Downloading from URL " . $presentationURL . PHP_EOL;
-		//
-		// Download url (to $config->videoSourceFolderPath)
-		// 
+		echo "START download from URL " . $presentationURL . PHP_EOL;
+		if(!downloadFromURL($presentationURL, $videoSourceFolderPath)){
+			exit("EXIT: Failed to download file " . $presentationURL . PHP_EOL);
+		};
+		echo "DONE download from URL " . $presentationURL . PHP_EOL;
 		$filesDownloaded++;
 	}
 }
 
 exit("EXIT: Done downloading " . $filesDownloaded . " presentation files" . PHP_EOL);
 
+
+
+function downloadFromURL($url, $localPath){
+	set_time_limit(0);
+	// Full path to media file on disk
+	$fp = fopen ($localPath . basename($url), 'w+');
+	$ch = curl_init($url);
+	curl_setopt($ch, CURLOPT_TIMEOUT, 50);
+	// Write downloaded media to file
+	curl_setopt($ch, CURLOPT_FILE, $fp); 
+	curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
+	// Returns TRUE on success or FALSE on failure
+	$response = curl_exec($ch); 
+	curl_close($ch);
+	fclose($fp);
+	return $response;
+}
 
