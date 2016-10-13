@@ -1,6 +1,7 @@
 manifests/*/*.xml
 metadata_source/series_split/*.json
 metadata_source/series_main/*.json
+metadata_source/series_presentation_urls/*.json
 error_logs/*.json
 etc/config.js
 .devs

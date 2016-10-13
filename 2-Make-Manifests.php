@@ -27,6 +27,7 @@
 
 $config = json_decode( file_get_contents('etc/config.js'), false );
 
+
 # Metadata content
 	// Read series from local copy (script #1 should have downloaded this)
 	$seriesJSON = file_get_contents($config->seriesMetaPathToFile);
@@ -64,6 +65,8 @@ foreach ($seriesObject as $seriesKey => $serieObj) {
 		}
 	}
 
+	// List of all presentation URLs for this serie
+	$downloadURLsForSerie = [];
 	// Make an array of SERIE keyword string (we add these as Tags to every presentation in the serie)
 	$serieKeywords = explode(',', $serieObj->keywords);
 	// Also add the serie GUID and coursecode as tags
@@ -168,12 +171,24 @@ foreach ($seriesObject as $seriesKey => $serieObj) {
 						$meta = $xml->addChild('Meta');
 						$meta->addChild('url');
 						$meta->url[0] = $videoURL;
+						// Add to list to be stored to file
+						$downloadURLsForSerie[] = $videoURL;
+
+						// Create a file per serie filled with direct links to presentations (for downloading via HTTP)
+						if($config->writeDownloadURLsToFile) {
+							$downloadURLsPath = $config->downloadURLsPath;
+							if(!is_dir($downloadURLsPath)){
+								mkdir($downloadURLsPath);
+							}
+							echo "Writing presentation URLs for this series to " . $serieObj->guid;
+							file_put_contents($downloadURLsPath . $serieObj->guid . '.json', json_encode($downloadURLsForSerie));
+						}
 
 						// Turn actual writing to file on/off in config
 						if($config->writeManifestsToFile) {
 
-							echo '<li>Writing ' . $serieFolderPath . $presentationObj->guid . '_manifest.xml' .' to file ('.$highestRes.'p).</li>';
-							file_put_contents($serieFolderPath . $presentationObj->guid . '_manifest.xml', $xml->asXML());
+							//echo '<li>Writing ' . $serieFolderPath . $presentationObj->guid . '_manifest.xml' .' to file ('.$highestRes.'p).</li>';
+							//file_put_contents($serieFolderPath . $presentationObj->guid . '_manifest.xml', $xml->asXML());
 						} else {
 
 							// Output a single XML sample and exit in first iteration of loop
