@@ -6,23 +6,33 @@
     "comment"					: 	"Base URL to get metadata for a single serie. Neet to append `&guid={serieGUID}&format=json for each serie to be fetched.",
 
     "seriesMetaPathToFile"      :   "metadata_source/series_main/series.json",
-    "comment"					: 	"Script #1 will save meta returned from `seriesURL` to this file. Script #2 will read from here.",
+    "comment"                   :   "Script #1 will save meta returned from `seriesURL` to this file. Script #2 will read from here.",
 
-    "presentationsMetaPath"    	:   "metadata_source/series_split/",
-    "comment"					: 	"Script #1 will save metadata returned from each and every `singleSerieURL` as single files to this folder. Script #2 will read from these.",
+    "presentationsMetaPath"     :   "metadata_source/series_split/",
+    "comment"                   :   "Script #1 will save metadata returned from each and every `singleSerieURL` as single files to this folder. Script #2 will read from these.",
 
-    "manifestsRootPath"       	:   "manifests/",
-	"comment"					: 	"Script #2 will write manifest files to this folder.",    
+    "downloadAndSaveMetadata"   :   false,
+    "comment"                   :   "Script #1 - enable/disable download/storing of metadata files",
 
-    "errorLogsPath"				: 	"error_logs/",
-	"comment"					: 	"If {logMissingData} is enabled, Script #2 will write logfiles for a) empty serie metadata files and b) presentations with missing url to videofile.",    
+    "manifestsRootPath"         :   "manifests/",
+    "comment"                   :   "Script #2 will write manifest folders/files to this folder.",    
 
-	"logMissingData"			: 	false, 
-	"comment"					: 	"Script #2 - enable/disable logging",
+    "errorLogsPath"             :   "error_logs/",
+    "comment"                   :   "If {logMissingData} is enabled, Script #2 will write logfiles for a) empty serie metadata files and b) presentations with missing url to videofile.",    
 
-    "writeManifestsToFile"		: 	false, 
-    "comment"					: 	"Script #2 - enable/disable generating/writing manifests",
+    "logMissingData"            :   false, 
+    "comment"                   :   "Script #2 - enable/disable logging",
 
-    "downloadAndSaveMetadata"	: 	false,
-	"comment"					: 	"Script #1 - enable/disable download/storing of metadata files"
+    "writeManifestsToFile"      :   false, 
+    "comment"                   :   "Script #2 - enable/disable generating/writing manifests",
+
+    "writeZipFilesToFile"       :   true, 
+    "comment"                   :   "Script #3 - enable/disable zipping of video+manifest",
+
+    "videoSourceFolderPath"     :   "sourcevideos/", 
+    "comment"                   :   "This is the folder where all video files are stored. Script #3 will search in here for all presentation videos to be zipped.", 
+
+    "zipPublishRootPath"        :   "openvideoimport/", 
+    "comment"                   :   "Resulting zipped files will be stored here by Script#3."
+ 
 }

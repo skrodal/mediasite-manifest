@@ -59,11 +59,19 @@ foreach ($seriesObject as $seriesKey => $serieObj) {
 	// Create one folder per serie (XML-files will be stored here)
 	if($config->writeManifestsToFile) {
 		$serieFolderPath = $config->manifestsRootPath . $serieObj->guid . '/';
-		mkdir($serieFolderPath);
+		if(!is_dir($serieFolderPath)){
+			mkdir($serieFolderPath);
+		}
 	}
 
-	// Make array of SERIE keyword string (we add these as Tags to every presentation in the serie)
+	// Make an array of SERIE keyword string (we add these as Tags to every presentation in the serie)
 	$serieKeywords = explode(',', $serieObj->keywords);
+	// Also add the serie GUID and coursecode as tags
+	array_push($serieKeywords, 'sguid-' . $serieObj->guid);
+
+	if(!empty($serieObj->coursecode)){
+		array_push($serieKeywords, 'code-' . $serieObj->coursecode);
+	} else{echo "<li>Note: Coursecode not set for serie $serieObj->guid</li>";}
 
 	// Loop content (x number of presentations) and build each manifest file
 	foreach ($serieObject as $serieKey => $presentationObj) {
@@ -89,12 +97,13 @@ foreach ($seriesObject as $seriesKey => $serieObj) {
 				# Presentation
 			    $presentation = $xml->addChild('Presentation');
 				    $presentation->Description = $presentationObj->description;
-				    $presentation->RecordDateTimeUtc = $presentationObj->date;
+				    $presentation->RecordDateTimeUtc = str_replace(" ","T",trim($presentationObj->date));
 					$presentation->Title = $presentationObj->title;
 					# Tags (0 - many)
 					$tags = $presentation->addChild('Tags');
 					// Make array of PRESENTATION keyword string
 					$keywords = explode(',', $presentationObj->keywords);
+					array_push($keywords, 'pguid-' . $presentationObj->guid);
 					// MERGE serie keywords with presentation keywords. Trim/make lower case and remove duplicates.
 					$keywords = array_unique(array_map('trim', array_map('strtolower', array_merge($keywords, $serieKeywords))));
 					// Loop presentation keywords and add as Tag nodes
@@ -106,15 +115,16 @@ foreach ($seriesObject as $seriesKey => $serieObj) {
 					$presenters = $presentation->addChild('Presenters');
 						// Single child node per presentation
 						$presenter = $presenters->addChild('Presenter');
-							// Got nothing to add to these
-							$presenter->addChild('AdditionalInfo');
-							$presenter->addChild('BioUrl');
+							// We don't have an email address or bio url, but Mediasite import will fail without these fields being present and not empty...
 							$presenter->addChild('EmailAddress');
+							$presenter->EmailAddress[0] = 'multimedie@adm.ntnu.no';
+							$presenter->addChild('BioUrl');
+							$presenter->BioUrl[0] = 'http://www.ntnu.no/';
 							// Name(s) will be populated further down
 							$presenter->addChild('FirstName');
 							$presenter->addChild('MiddleName');
 							$presenter->addChild('LastName');
-							// Metadata provides full name, need to split (pure guessing)
+							// Metadata provides full name, need to split and presume any name in between first/last is middle
 							$presenterName = explode(' ', $presentationObj->presenter);
 							// Try to populate names that exist (anything bewteen 1st and last count as middle name...)
 							foreach ($presenterName as $index => $value) {
@@ -122,19 +132,21 @@ foreach ($seriesObject as $seriesKey => $serieObj) {
 								if($index === 0) { $presenter->FirstName[0] = $presenterName[$index]; continue; }
 								// Last index in array is last name
 								if($index === sizeof($presenterName)-1) { $presenter->LastName[0] = $presenterName[$index]; continue; }
-								// Anything between first and last array item counts as middle name... 
+								// Anything between first and last array item counts as middle name...
 								$presenter->MiddleName[0] = $presenterName[$index];	
 							}
 							// 
 							$presenter->addChild('Order', '0');
-							// Nothing to add
-							$presenter->addChild('Prefix');
-							$presenter->addChild('Suffix');
-							$presenter->addChild('ImageFileName');
-
+							
+								// Empties
+								$presenter->addChild('AdditionalInfo');
+								$presenter->addChild('Prefix');
+								$presenter->addChild('Suffix');
+								$presenter->addChild('ImageFileName');
+							
 					# Stream - single file only (more means dual-video or worse...)
 					$onDemandStreams = $presentation->addChild('OnDemandStreams');
-						$onDemandStream = $onDemandStreams->addChild('onDemandStream');
+						$onDemandStream = $onDemandStreams->addChild('OnDemandStream');
 						$onDemandStream->addChild('StreamType', 'Video1');
 						$onDemandStream->addChild('FileName');
 						// Find highest res available (if any)
@@ -144,32 +156,39 @@ foreach ($seriesObject as $seriesKey => $serieObj) {
 						foreach ($presentationObj->podcastvideo as $index => $videoArr) {
 							if($videoArr->videoRez > $highestRes) {
 								$highestRes = $videoArr->videoRez;
+								// Get filename only - drop path
 								$videoURL = $videoArr->directURL;
 							}
 						}
-						$onDemandStream->FileName[0] = $videoURL;
+						//
+						$onDemandStream->FileName[0] = basename($videoURL);
+						// Add resolution as a Tag
+						$tags->addChild('Tag')->addAttribute('Value', 'res-' . $highestRes);
+						// Add video URL as meta info (not used in import, but useful for tests)
+						$meta = $xml->addChild('Meta');
+						$meta->addChild('url');
+						$meta->url[0] = $videoURL;
 
 						// Turn actual writing to file on/off in config
 						if($config->writeManifestsToFile) {
-							echo '<li>Writing ' . $serieFolderPath . $presentationObj->guid . 'Manifest.xml' .' to file.</li>';
-							file_put_contents($serieFolderPath . $presentationObj->guid . 'Manifest.xml', $xml->asXML());
+
+							echo '<li>Writing ' . $serieFolderPath . $presentationObj->guid . '_manifest.xml' .' to file ('.$highestRes.'p).</li>';
+							file_put_contents($serieFolderPath . $presentationObj->guid . '_manifest.xml', $xml->asXML());
 						} else {
-/*
+
 							// Output a single XML sample and exit in first iteration of loop
 							Header('Content-type: text/xml');
 							$xml->addAttribute('COMMENT', 'Sample output below: Manifest output to file has been diabled. Edit writeManifestsToFile in config.js to turn on.');
 							//
 							print($xml->asXML());
 							exit();
-*/
+
 						}
 		} // end if/else
 		
 	} // end loop in serie
 
 } // end series loop
-
-
 
 // Log troublesome series/presentations to file?
 if($config->logMissingData) {
