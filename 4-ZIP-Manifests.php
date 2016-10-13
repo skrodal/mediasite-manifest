@@ -30,7 +30,7 @@ run();
 
 ######
 #
-# ~~~ Open Video to Mediasite Import - SCRIPT #3 - ZIP each manifest file with corresponding video file ~~~
+# ~~~ Open Video to Mediasite Import - SCRIPT #4 - ZIP each manifest file with corresponding video file ~~~
 # 
 # Scans every XML-file in each and every series folder in $config->manifestsRootPath, and:  
 # 
@@ -46,6 +46,7 @@ run();
 # 
 # - Must have run script #1, `1-Download-Metadata.php`, first (as this downloads all metadata to local disk).
 # - Must have run script #2, `2-Make-Manifests.php`, first (as this creates manifest files (XML) from series metadata to local disk).
+# - Optionally script #3 (if files are to be fetched from remote via HTTP)
 #
 # @author Simon Skrødal
 # @since 06.06.2016

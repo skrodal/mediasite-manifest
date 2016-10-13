@@ -187,8 +187,8 @@ foreach ($seriesObject as $seriesKey => $serieObj) {
 						// Turn actual writing to file on/off in config
 						if($config->writeManifestsToFile) {
 
-							//echo '<li>Writing ' . $serieFolderPath . $presentationObj->guid . '_manifest.xml' .' to file ('.$highestRes.'p).</li>';
-							//file_put_contents($serieFolderPath . $presentationObj->guid . '_manifest.xml', $xml->asXML());
+							echo '<li>Writing ' . $serieFolderPath . $presentationObj->guid . '_manifest.xml' .' to file ('.$highestRes.'p).</li>';
+							file_put_contents($serieFolderPath . $presentationObj->guid . '_manifest.xml', $xml->asXML());
 						} else {
 
 							// Output a single XML sample and exit in first iteration of loop
