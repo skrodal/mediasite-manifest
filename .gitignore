@@ -4,6 +4,6 @@ metadata_source/series_main/*.json
 error_logs/*.json
 etc/config.js
 .devs
-.dev/
+.dev/*
 sourcevideos/*
 openvideoexport/*
