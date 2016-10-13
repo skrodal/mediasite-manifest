@@ -74,7 +74,7 @@ foreach ($seriesObject as $seriesKey => $serieObj) {
 
 	if(!empty($serieObj->coursecode)){
 		array_push($serieKeywords, 'code-' . $serieObj->coursecode);
-	} else{echo "<li>Note: Coursecode not set for serie $serieObj->guid</li>";}
+	} //else{echo "<li>Note: Coursecode not set for serie $serieObj->guid</li>";}
 
 	// Loop content (x number of presentations) and build each manifest file
 	foreach ($serieObject as $serieKey => $presentationObj) {
@@ -111,7 +111,7 @@ foreach ($seriesObject as $seriesKey => $serieObj) {
 					$keywords = array_unique(array_map('trim', array_map('strtolower', array_merge($keywords, $serieKeywords))));
 					// Loop presentation keywords and add as Tag nodes
 					foreach ($keywords as $index => $keyword) {
-						$tags->addChild('Tag')->addAttribute('Value', trim($keyword));
+						$tags->addChild('Tag')->addAttribute('Value', $keyword);
 					}
 
 					# Presenters (only one in this dataset)
@@ -158,11 +158,18 @@ foreach ($seriesObject as $seriesKey => $serieObj) {
 
 						foreach ($presentationObj->podcastvideo as $index => $videoArr) {
 							if($videoArr->videoRez > $highestRes) {
+								// TODO: Check that URL points to a videofile!
 								$highestRes = $videoArr->videoRez;
 								// Get filename only - drop path
 								$videoURL = $videoArr->directURL;
 							}
 						}
+						// If we do not have a $videoURL by this point, this presentation's metadata failed to provide a URL pointing to an existing videofile
+						if(is_null($videoURL)){
+							echo "NO VIDEO URL FOUND FOR PRESENTATION " . $presentationObj->guid . "IN SERIE " . $serieObj->guid . PHP_EOL;
+							continue;
+						}
+
 						//
 						$onDemandStream->FileName[0] = basename($videoURL);
 						// Add resolution as a Tag
