@@ -174,7 +174,7 @@ function create_zip($files = array(),$destination,$overwrite = false) {
 				$zip->addFile($file,basename($file));
 			}
 		}
-		echo "Done zipping: the archive contains $zip->numFiles files with status: " . $zip->getStatusString() . PHP_EOL;
+		echo "Done zipping $destination :: the archive contains $zip->numFiles files with status: " . $zip->getStatusString() . PHP_EOL;
 
 		//close the zip -- done!
 		$zip->close();

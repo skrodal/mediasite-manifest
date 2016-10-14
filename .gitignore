@@ -8,3 +8,4 @@ etc/config.js
 dev/*
 sourcevideos/*
 openvideoexport/*
+test.php

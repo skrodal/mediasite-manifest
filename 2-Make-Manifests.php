@@ -158,10 +158,13 @@ foreach ($seriesObject as $seriesKey => $serieObj) {
 
 						foreach ($presentationObj->podcastvideo as $index => $videoArr) {
 							if($videoArr->videoRez > $highestRes) {
-								// TODO: Check that URL points to a videofile!
-								$highestRes = $videoArr->videoRez;
-								// Get filename only - drop path
-								$videoURL = $videoArr->directURL;
+								// Make a call to URL and check headers for size. If the file is very small, this is a 
+								// Not Found-page and should be dismissed.
+								if(isVideoFile($videoArr->directURL)){
+									$highestRes = $videoArr->videoRez;
+									// Get filename only - drop path
+									$videoURL = $videoArr->directURL;
+								}
 							}
 						}
 						// If we do not have a $videoURL by this point, this presentation's metadata failed to provide a URL pointing to an existing videofile
@@ -217,3 +220,16 @@ if($config->logMissingData) {
 	echo 'Log of series with missing metadata written to ' . $config->errorLogsPath . 'seriesWithEmptyMetadata.json' . PHP_EOL;
 	echo 'Log of presentations with missing URL to video file written to ' . $config->errorLogsPath . 'presWithVideoMissing.json' . PHP_EOL;
 }
+
+function isVideoFile($url){
+	$headers = get_headers($url, 1);
+	$content_length = $headers["Content-Length"];
+	// If less than 1MB, this is not a video file, but a "Does not exist page"
+	if($content_length < 1000000){
+		echo "Found URL with missing video" .PHP_EOL;
+		return false;
+	}
+	return true;
+}
+
+

@@ -42,5 +42,5 @@ if($config->downloadAndSaveMetadata) {
 		file_put_contents($config->presentationsMetaPath . $serie->guid.'.json', $presentationsFile);
 	}
 } else {
-	echo 'Metadata download has been diabled. Edit 'downloadAndStoreMetadata' in config to turn on.' . PHP_EOL;
+	echo "Metadata download has been diabled. Edit 'downloadAndStoreMetadata' in config to turn on." . PHP_EOL;
 }
