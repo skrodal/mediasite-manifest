@@ -174,15 +174,14 @@ function create_zip($files = array(),$destination,$overwrite = false) {
 	// Were both paths found on disk?
 	if(sizeof($valid_files) == 2) {
 		// Create the archive
-		$zip = new ZipArchive();
+		$zip = new ZipArchive();	
+		if($zip->open($destination,$overwrite ? ZIPARCHIVE::OVERWRITE : ZIPARCHIVE::CREATE) !== true) {
+			return false;
+		}
 		# REQUIRES PHP 7: http://php.net/manual/en/ziparchive.setcompressionindex.php
 		# Poorly documented, but seems like CM_STORE is zero compression, which is what we want (for speed)
 		$zip->setCompressionIndex(0, ZipArchive::CM_STORE);
 		$zip->setCompressionIndex(1, ZipArchive::CM_STORE);
-		
-		if($zip->open($destination,$overwrite ? ZIPARCHIVE::OVERWRITE : ZIPARCHIVE::CREATE) !== true) {
-			return false;
-		}
 		// Add the files
 		foreach($valid_files as $file) {
 			// The XML file needs renaming to work in Mediasite import:

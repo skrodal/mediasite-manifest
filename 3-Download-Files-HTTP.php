@@ -75,6 +75,7 @@ exit("EXIT: Done downloading " . $filesDownloaded . " presentation files" . PHP_
 
 
 function downloadFromURL($url, $localPath){
+	global $CURL_DL_TIMEOUT;
 	set_time_limit(0);
 	// Full path to media file on disk
 	$fp = fopen ($localPath . basename($url), 'w+');
