@@ -185,9 +185,8 @@ foreach ($seriesObject as $seriesKey => $serieObj) {
 						$downloadURLsForSerie[] = $videoURL;
 						// Turn actual writing to file on/off in config
 						if($config->writeManifestsToFile) {
-
-							//echo 'Writing ' . $serieFolderPath . $presentationObj->guid . '_manifest.xml' .' to file ('.$highestRes.')'. PHP_EOL;
-							//file_put_contents($serieFolderPath . $presentationObj->guid . '_manifest.xml', $xml->asXML());
+							echo 'Writing ' . $serieFolderPath . $presentationObj->guid . '_manifest.xml' .' to file ('.$highestRes.')'. PHP_EOL;
+							file_put_contents($serieFolderPath . $presentationObj->guid . '_manifest.xml', $xml->asXML());
 						} else {
 
 							// Output a single XML sample and exit in first iteration of loop

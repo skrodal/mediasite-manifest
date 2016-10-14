@@ -41,12 +41,12 @@ function run ($config) {
 	// If publish dir is not created yet, do it now
 	if(!is_dir($config->zipPublishRootPath)){ 
 		if(!mkdir($config->zipPublishRootPath)){
-			exit( "EXIT! Failed to create folder " . $config->zipPublishRootPath . "!- missing access rights?" . PHP_EOL );
+			exit( "EXIT! Failed to create folder $config->zipPublishRootPath! Missing access rights?" . PHP_EOL );
 		} 
 	}
 	// Make sure source videos are found
 	if(!is_dir($config->videoSourceFolderPath)){
-		exit("EXIT! Source video folder (".$config->videoSourceFolderPath.") not found!" . PHP_EOL);
+		exit("EXIT! Source video folder $config->videoSourceFolderPath not found!" . PHP_EOL);
 	}
 	// Loop each and every series folder
 	foreach (new DirectoryIterator($config->manifestsRootPath) as $serieDir) {
