@@ -24,6 +24,8 @@
 
 
 $config = json_decode( file_get_contents('etc/config.js'), false );
+// Number of seconds a file can download for before timing out
+$CURL_DL_TIMEOUT = 500;
 
 if(!$config->downloadFilesViaHTTP){
 	exit("EXIT: Download is disabled in config" . PHP_EOL);
@@ -49,7 +51,7 @@ $filesDownloaded = 0;
 //
 $fileSeriesList = glob($config->downloadURLsPath . '*.json');
 
-echo "Number of files: " . sizeof($fileSeriesList) . PHP_EOL;
+echo "Number of series files: " . sizeof($fileSeriesList) . PHP_EOL;
 
 foreach ($fileSeriesList as $fileName) {
 	echo "Reading URLs for series " . $fileName . PHP_EOL;
@@ -60,7 +62,8 @@ foreach ($fileSeriesList as $fileName) {
 		}
 		echo "START download from URL " . $presentationURL . PHP_EOL;
 		if(!downloadFromURL($presentationURL, $videoSourceFolderPath)){
-			exit("EXIT: Failed to download file " . $presentationURL . PHP_EOL);
+			echo "EXIT: Failed to download file " . $presentationURL . "in file $fileName " . PHP_EOL;
+			echo "REASON: Possible that download timed out. Current (cURL) timeout is set to " . $CURL_DL_TIMEOUT . " seconds (you can change this in the script)" . PHP_EOL;
 		};
 		echo "DONE download from URL " . $presentationURL . PHP_EOL;
 		$filesDownloaded++;
@@ -76,7 +79,7 @@ function downloadFromURL($url, $localPath){
 	// Full path to media file on disk
 	$fp = fopen ($localPath . basename($url), 'w+');
 	$ch = curl_init($url);
-	curl_setopt($ch, CURLOPT_TIMEOUT, 50);
+	curl_setopt($ch, CURLOPT_TIMEOUT, $CURL_DL_TIMEOUT);
 	// Write downloaded media to file
 	curl_setopt($ch, CURLOPT_FILE, $fp); 
 	curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);

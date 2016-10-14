@@ -26,6 +26,12 @@
     "writeManifestsToFile"      :   false, 
     "comment"                   :   "Script #2 - enable/disable generating/writing manifests",
 
+    "writeDownloadURLsToFile"   :   true,
+    "comment"                   :   "Script #2 - write direct URLs for each presentations (useful for script #3)",
+
+    "downloadURLsPath"          :   "metadata_source/series_presentation_urls/",
+    "comment"                   :   "Script #2 - path to store download URLs - one file per serie",
+
     "downloadFilesViaHTTP"      :   false, 
     "downloadFilesLimit"        :   2,
     "comment"                   :   "Script #3 - enable/disable downloading of videos from URLs (found in manifests). Set filelimit to false to download all.",

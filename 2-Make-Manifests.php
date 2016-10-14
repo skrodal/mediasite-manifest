@@ -180,22 +180,11 @@ foreach ($seriesObject as $seriesKey => $serieObj) {
 						$meta->url[0] = $videoURL;
 						// Add to list to be stored to file
 						$downloadURLsForSerie[] = $videoURL;
-
-						// Create a file per serie filled with direct links to presentations (for downloading via HTTP)
-						if($config->writeDownloadURLsToFile) {
-							$downloadURLsPath = $config->downloadURLsPath;
-							if(!is_dir($downloadURLsPath)){
-								mkdir($downloadURLsPath);
-							}
-							echo "Writing presentation URLs for this series to " . $serieObj->guid;
-							file_put_contents($downloadURLsPath . $serieObj->guid . '.json', json_encode($downloadURLsForSerie));
-						}
-
 						// Turn actual writing to file on/off in config
 						if($config->writeManifestsToFile) {
 
-							echo '<li>Writing ' . $serieFolderPath . $presentationObj->guid . '_manifest.xml' .' to file ('.$highestRes.'p).</li>';
-							file_put_contents($serieFolderPath . $presentationObj->guid . '_manifest.xml', $xml->asXML());
+							//echo 'Writing ' . $serieFolderPath . $presentationObj->guid . '_manifest.xml' .' to file ('.$highestRes.')'. PHP_EOL;
+							//file_put_contents($serieFolderPath . $presentationObj->guid . '_manifest.xml', $xml->asXML());
 						} else {
 
 							// Output a single XML sample and exit in first iteration of loop
@@ -204,11 +193,20 @@ foreach ($seriesObject as $seriesKey => $serieObj) {
 							//
 							print($xml->asXML());
 							exit();
-
 						}
 		} // end if/else
 		
 	} // end loop in serie
+		
+	// Create one file per serie filled with direct links to presentations (for downloading via HTTP)
+	if($config->writeDownloadURLsToFile) {
+		$downloadURLsPath = $config->downloadURLsPath;
+		if(!is_dir($downloadURLsPath)){
+			mkdir($downloadURLsPath);
+		}
+		echo "Writing presentation URLs for this series to " . $serieObj->guid . PHP_EOL;
+		file_put_contents($downloadURLsPath . $serieObj->guid . '.json', json_encode($downloadURLsForSerie));
+	}
 
 } // end series loop
 
@@ -216,9 +214,6 @@ foreach ($seriesObject as $seriesKey => $serieObj) {
 if($config->logMissingData) {
 	file_put_contents($config->errorLogsPath . 'seriesWithEmptyMetadata.json', json_encode($seriesWithEmptyMetadata));
 	file_put_contents($config->errorLogsPath . 'presWithVideoMissing.json', json_encode($presentationsWithVideoMissing));
-
-	echo '<br><br><hr><br><br>';
-	echo '<li>Log of series with missing metadata written to ' . $config->errorLogsPath . 'seriesWithEmptyMetadata.json' . '</li>';
-	echo '<li>Log of presentations with missing URL to video file written to ' . $config->errorLogsPath . 'presWithVideoMissing.json' . '</li>';
-	echo '<br><br><hr><br><br>';
+	echo 'Log of series with missing metadata written to ' . $config->errorLogsPath . 'seriesWithEmptyMetadata.json' . PHP_EOL;
+	echo 'Log of presentations with missing URL to video file written to ' . $config->errorLogsPath . 'presWithVideoMissing.json' . PHP_EOL;
 }
