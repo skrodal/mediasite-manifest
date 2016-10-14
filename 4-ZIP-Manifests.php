@@ -124,41 +124,19 @@ function run () {
 	    }
 	    
 	}
-
-
-/*
-	// Loop SERIES folders containing manifest xmls...
-	$manifestRootDir = new RecursiveDirectoryIterator($config->manifestsRootPath);
-	foreach (new RecursiveIteratorIterator($manifestRootDir) as $filename => $file) {
-		// 
-		$serieFolder = dirname($filename); 
-
-    if (!$file->isDot()) {
-        var_dump($file->getFilename());
-    }
-
-
-
-
-//$path = "/home/httpd/html/index.php";
-//$file = basename($path);         // $file is set to "index.php"
-//$file = basename($path, ".php"); // $file is set to "index"
-
-
-		//echo '<li>' . $serieFolder . ' ---> ' . basename($filename);
-		//echo $filename . ' - ' . $file;
-	    //echo $filename . ' - ' . $file->getSize() . ' bytes <br/>';
-	}
-
-
-*/
-
 }
 
 
 
 
-/* creates a compressed zip file */
+/**
+ * Creates ZIP consumable by Mediasite import. Contains two files:
+ *
+ * 1. MediasiteIntegrationManifest.xml with metadata
+ * 2. Video file with same filename as found in <FileName></FileName> of the Manifest file
+ *
+ * NOTE! The function uses ZIP options available only to PHP 7!
+ */
 function create_zip($files = array(),$destination,$overwrite = false) {
 	// Store paths to be zipped here
 	$valid_files = [];
@@ -175,14 +153,16 @@ function create_zip($files = array(),$destination,$overwrite = false) {
 	if(sizeof($valid_files) == 2) {
 		// Create the archive
 		$zip = new ZipArchive();	
-		if($zip->open($destination,$overwrite ? ZIPARCHIVE::OVERWRITE : ZIPARCHIVE::CREATE) !== true) {
+		if(!$zip->open($destination,$overwrite ? ZIPARCHIVE::OVERWRITE : ZIPARCHIVE::CREATE)) {
 			return false;
 		}
 		# REQUIRES PHP 7: http://php.net/manual/en/ziparchive.setcompressionindex.php
-		# Poorly documented, but seems like CM_STORE is zero compression, which is what we want (for speed)
+		# Poorly documented, but seems like CM_STORE is zero compression, which is what we want (for speed) (have tested and seems to work)
+		# Uncomment the next two lines if PHP7 is not available!
 		$zip->setCompressionIndex(0, ZipArchive::CM_STORE);
 		$zip->setCompressionIndex(1, ZipArchive::CM_STORE);
-		// Add the files
+
+		// Add the files to the zip
 		foreach($valid_files as $file) {
 			// The XML file needs renaming to work in Mediasite import:
 			$path_parts = pathinfo($file);
@@ -194,7 +174,7 @@ function create_zip($files = array(),$destination,$overwrite = false) {
 				$zip->addFile($file,basename($file));
 			}
 		}
-		echo 'The zip archive contains ' . $zip->numFiles . ' files with a status of ' . $zip->status . PHP_EOL;
+		echo "Done zipping: the archive contains $zip->numFiles files with status: " . $zip->getStatusString() . PHP_EOL;
 
 		//close the zip -- done!
 		$zip->close();
@@ -207,7 +187,3 @@ function create_zip($files = array(),$destination,$overwrite = false) {
 		return false;
 	}
 }
-
-
-
-
