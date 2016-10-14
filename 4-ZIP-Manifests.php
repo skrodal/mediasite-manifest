@@ -1,7 +1,5 @@
 <?php
 
-run();
-
 ######
 #
 # ~~~ Open Video to Mediasite Import - SCRIPT #4 - ZIP each manifest file with corresponding video file ~~~
@@ -29,26 +27,19 @@ run();
 
 
 
-/* TODO: 
+$config = json_decode( file_get_contents('etc/config.js'), false );
+
+if(!$config->writeZipFilesToFile){
+	exit("EXIT: Script is disabled in config." . PHP_EOL);
+}
+
+run($config);
 
 
-	- Need a config entry that points to the path where videos are stored.
-	- A nested loop for
-		- Each serie folder
-		- Each XML-file in this folder
-	- ...that will scan for filename (which will need to be stripped from its path)
-	- Search for same filename in videopath
-	- Move video to current (or new working) folder
-	- Zip XML and videofile
-	- Next...
-
-*/
-
-function run () {
-	$config = json_decode( file_get_contents('etc/config.js'), false );
+function run ($config) {
 
 	// If publish dir is not created yet, do it now
-	if($config->writeZipFilesToFile && !is_dir($config->zipPublishRootPath)){ 
+	if(!is_dir($config->zipPublishRootPath)){ 
 		if(!mkdir($config->zipPublishRootPath)){
 			exit( "EXIT! Failed to create folder " . $config->zipPublishRootPath . "!- missing access rights?" . PHP_EOL );
 		} 
@@ -88,20 +79,6 @@ function run () {
 								exit("EXIT! Failed to create folder $serieExportFolderPath! Missing access rights?" . PHP_EOL);
 							} 
 						}
-
-						/*
-						// COPY Manifest file to export folder
-						if (!copy($manifestFilePath, $serieExportFolderPath . $manifestFileName )) {
-							echo "<h1>Failed to copy" . $manifestFilePath . "!</h1>";
-							exit();
-						}
-
-						// COPY Video file to export folder
-						if (!copy($videoFilePath, $serieExportFolderPath . $videoFileName )) {
-							echo "<h1>Failed to copy" . $videoFilePath . "!</h1>";
-							exit();
-						}
-						*/
 
 						$zipPublishFile = $serieExportFolderPath . $videoFileName . '.zip';
 						// Make sure ZIP is not already created in a previous run
