@@ -89,9 +89,7 @@ function run ($config) {
 						// ZIP the two files
 						if(!create_zip(array($manifestFilePath, $videoFilePath), $zipPublishFile)){
 							exit("EXIT! Could not make zip $zipPublishFile" . PHP_EOL);
-						} else {
-							echo "DONE zipping manifest to $zipPublishFile" . PHP_EOL;
-						}
+						} 
 					} else {
 						// TODO: LOG TO EXPORT ERROR FILE
 						echo "ERROR: File $videoFilePath was not found!" .PHP_EOL;
@@ -151,11 +149,10 @@ function create_zip($files = array(),$destination,$overwrite = false) {
 				$zip->addFile($file,basename($file));
 			}
 		}
-		echo "Done zipping $destination :: the archive contains $zip->numFiles files with status: " . $zip->getStatusString() . PHP_EOL;
-
-		//close the zip -- done!
+		// Save/close the zip -- done!
 		$zip->close();
-		
+		//
+		echo "Done zipping $destination :: the archive contains $zip->numFiles files with status: " . $zip->getStatusString() . PHP_EOL;		
 		//check to make sure the file exists
 		return file_exists($destination);
 	}
